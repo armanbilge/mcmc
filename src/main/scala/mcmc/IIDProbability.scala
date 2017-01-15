@@ -21,8 +21,8 @@ object IIDProbability {
   implicit def all[R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P], T](implicit p_t: Lens[P, T], cbf: CanBuildFrom[Traversable[P], P, C]): Lens[IIDProbability[R, P, C], T] =
     Lens[IIDProbability[R, P, C], T](iid => p_t.get(iid.ps.head))(t => ps[R, P, C].modify(_.map[P, C](p_t.set(t))))
 
-  implicit def at[R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P], I, T](implicit cAt: At[C, I, T], pAt: NoImplicit[At[P, I, T]]): At[IIDProbability[R, P, C], I, T] =
-    (i: I) => ps[R, P, C] ^|-> cAt.at(i)
+  implicit def at[R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P], I, T](implicit p_t: Lens[P, T], cAt: At[C, I, P], pAt: NoImplicit[At[P, I, T]]): At[IIDProbability[R, P, C], I, T] =
+    (i: I) => ps[R, P, C] ^|-> cAt.at(i) ^|-> p_t
 
   implicit def atAll[R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P], I, T](implicit pAt: At[P, I, T], cbf: CanBuildFrom[Traversable[P], P, C]): At[IIDProbability[R, P, C], I, T] =
     (i: I) => Lens[IIDProbability[R, P, C], T](iid => pAt.at(i).get(iid.ps.head)) { t =>
