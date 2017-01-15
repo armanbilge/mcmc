@@ -10,7 +10,7 @@ import spire.syntax.field._
 
 import scalaz.{@@, Tag}
 
-class ScaleOperator[T, R : Field : Trig, X, L <: Lens[T, R @@ X] :: HList](val scaleFactor: R, val lenses: L)(implicit rng: Generator, foldLeft: LeftFolder.Aux[L, (T, R), scaler.type, (T, R)]) extends Operator[T, R] {
+class ScaleOperator[T, @specialized(Double) R : Field : Trig, X, L <: Lens[T, R @@ X] :: HList](val scaleFactor: R, val lenses: L)(implicit rng: Generator, foldLeft: LeftFolder.Aux[L, (T, R), scaler.type, (T, R)]) extends Operator[T, R] {
 
   override def apply(t: T): T = {
     val scale = scaleFactor + rng.nextDouble * (1 / scaleFactor - scaleFactor)
