@@ -15,7 +15,7 @@ class IIDProbability[@specialized(Double) R : AdditiveMonoid, P <: Probability[R
 
 object IIDProbability {
 
-  def ps[R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P]]: Lens[IIDProbability[R, P, C], C] =
+  implicit def ps[R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P]]: Lens[IIDProbability[R, P, C], C] =
     Lens[IIDProbability[R, P, C], C](_.ps)(ps => _ => new IIDProbability[R, P, C](ps))
 
   implicit def all[R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P], T](implicit p_t: Lens[P, T], cbf: CanBuildFrom[Traversable[P], P, C]): Lens[IIDProbability[R, P, C], T] =

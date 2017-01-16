@@ -14,10 +14,10 @@ class JointProbability[@specialized(Double) R : AdditiveMonoid, P <: Probability
 
 object JointProbability {
 
-  def p[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R]]: Lens[JointProbability[R, P, Q], P] =
+  implicit def p[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R]]: Lens[JointProbability[R, P, Q], P] =
     Lens[JointProbability[R, P, Q], P](_.p)(p => jp => new JointProbability(p, jp.q))
 
-  def q[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R]]: Lens[JointProbability[R, P, Q], Q] =
+  implicit def q[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R]]: Lens[JointProbability[R, P, Q], Q] =
     Lens[JointProbability[R, P, Q], Q](_.q)(q => jp => new JointProbability(jp.p, q))
 
   implicit def left[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], T](implicit p_t: Lens[P, T], q_t: NoImplicit[Lens[Q, T]]): Lens[JointProbability[R, P, Q], T] =
