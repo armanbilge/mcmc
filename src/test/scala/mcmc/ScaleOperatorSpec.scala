@@ -1,8 +1,9 @@
 package mcmc
 
+import mcmc.implicits._
 import monocle.Lens
 import org.scalatest.refspec.RefSpec
-import shapeless.{::, HNil, tag}
+import shapeless.tag
 import shapeless.tag.@@
 import spire.random.rng.MersenneTwister64
 import spire.std.double._
@@ -19,7 +20,7 @@ class ScaleOperatorSpec extends RefSpec {
 
     implicit val rng = MersenneTwister64.fromTime(666)
 
-    val scaler = new ScaleOperator[A, Double, X, Lens[A, Double @@ X] :: Lens[A, Double @@ Y] :: HNil](0.75, x :: y :: HNil)
+    val scaler = new ScaleOperator[A, Double](0.75, Seq(x, y))
     assert(scaler.apply(A(tag[X](2.0), tag[Y](3.0))) == A(tag[X](2.373927201651749), tag[Y](3.5608908024776236)))
 
   }

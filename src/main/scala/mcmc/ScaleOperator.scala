@@ -1,30 +1,18 @@
 package mcmc
 
-import mcmc.ScaleOperator.scaler
 import monocle.Lens
-import shapeless.ops.hlist.LeftFolder
-import shapeless.{::, HList, Poly2, tag}
-import shapeless.tag.@@
 import spire.algebra.{Field, Trig}
 import spire.random.Generator
 import spire.syntax.field._
 
-class ScaleOperator[T, @specialized(Double) R : Field : Trig, X, L <: Lens[T, R @@ X] :: HList](val scaleFactor: R, val lenses: L)(implicit rng: Generator, foldLeft: LeftFolder.Aux[L, (T, R), scaler.type, (T, R)]) extends Operator[T, R] {
+class ScaleOperator[T, @specialized(Double) R : Field : Trig](val scaleFactor: R, val lenses: Traversable[Lens[T, R]])(implicit rng: Generator) extends Operator[T, R] {
 
   override def apply(t: T): T = {
     val scale = scaleFactor + rng.nextDouble * (1 / scaleFactor - scaleFactor)
-    lenses.foldLeft((t, scale))(scaler)._1
+    lenses.foldRight(t)(_.modify(scale * _)(_))
   }
 
   override def hastingsRatio(x: T, y: T): R =
-    (lenses.runtimeLength - 2) * Trig[R].log(Field[R].div(lenses.head.get(x), lenses.head.get(x)))
-
-}
-
-object ScaleOperator {
-
-  object scaler extends Poly2 {
-    implicit def f[T, R : Field, X] = at[(T, R), Lens[T, R @@ X]].apply[(T, R)]((ts, lens) => (lens.modify(x => tag[X](ts._2 * x))(ts._1), ts._2))
-  }
+    (lenses.size - 2) * Trig[R].log(Field[R].div(lenses.head.get(x), lenses.head.get(x)))
 
 }
