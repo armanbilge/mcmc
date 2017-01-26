@@ -18,10 +18,10 @@ class ScaleOperatorSpec extends RefSpec {
     val x = Lens[A, Double @@ X](_.x)(x => a => a.copy(x = x))
     val y = Lens[A, Double @@ Y](_.y)(y => a => a.copy(y = y))
 
-    implicit val rng = MersenneTwister64.fromTime(666)
+    implicit val rng = MersenneTwister64.fromArray(Array(666))
 
     val scaler = new ScaleOperator[A, Double](0.75, Seq(x, y))
-    assert(scaler.apply(A(tag[X](2.0), tag[Y](3.0))) == A(tag[X](2.373927201651749), tag[Y](3.5608908024776236)))
+    assert(scaler.apply(A(tag[X](2.0), tag[Y](3.0))) == A(tag[X](1.586437609419412), tag[Y](2.379656414129118)))
 
   }
 
