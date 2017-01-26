@@ -13,6 +13,6 @@ class ScaleOperator[T, @specialized(Double) R : Field : Trig](val scaleFactor: R
   }
 
   override def hastingsRatio(x: T, y: T): R =
-    (lenses.size - 2) * Trig[R].log(Field[R].div(lenses.head.get(x), lenses.head.get(x)))
+    (lenses.size - 2) * Trig[R].log(lenses.head.get(y) / lenses.head.get(x))
 
 }

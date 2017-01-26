@@ -13,6 +13,6 @@ class UpDownOperator[T, @specialized(Double) R : Field : Trig](val scaleFactor: 
   }
 
   override def hastingsRatio(x: T, y: T): R =
-    (up.size - down.size - 2) * Trig[R].log(Field[R].div(up.head.get(x), up.head.get(x)))
+    (up.size - down.size - 2) * Trig[R].log(up.head.get(y) / up.head.get(x))
 
 }
