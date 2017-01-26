@@ -19,7 +19,7 @@ object Multinomial {
 
   implicit def any[T, @specialized(Double) R : Ring : Uniform : Order]: Multinomial[T, R] =
     (probabilities: Map[T, R]) => new DistFromGen[T]({ g =>
-      val u = g.next[R](Uniform(Ring[R].zero, Ring[R].one))
+      val u = g.next[R](Uniform(Ring[R].zero, Ring[R].sum(probabilities.values)))
       val iter = probabilities.iterator
       var current = iter.next()
       var cumsum = current._2
