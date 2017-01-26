@@ -19,17 +19,18 @@ object Multinomial {
 
   implicit def any[T, @specialized(Double) R : Ring : Uniform : Order]: Multinomial[T, R] =
     (probabilities: Map[T, R]) => {
-      val sortedProbabilities = probabilities.toArray.sortWith(Order.by[(T, R), R](_._2).gt).toIndexedSeq
+      val cumSum = {
+        val cs = probabilities.toArray
+        scala.util.Sorting.quickSort(cs)(Ordering.fromLessThan(Order.by[(T, R), R](_._2).gt))
+        for (i <- cs.indices.tail)
+          cs(i) = (cs(i)._1, cs(i - 1)._2 + cs(i)._2)
+        cs
+      }
       new DistFromGen[T]({ g =>
-        val u = g.next[R](Uniform(Ring[R].zero, Ring[R].sum(probabilities.values)))
-        val iter = sortedProbabilities.toIterator
-        var current = iter.next()
-        var cumsum = current._2
-        while (cumsum > u && iter.hasNext) {
-          current = iter.next()
-          cumsum += current._2
-        }
-        current._1
+        val u = g.next[R](Uniform(Ring[R].zero, cumSum.last._2))
+        var i = 0
+        while (i < cumSum.length && u > cumSum(i)._2) i += 1
+        cumSum(i)._1
       }
     )}
 
