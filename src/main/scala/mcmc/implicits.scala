@@ -6,6 +6,7 @@ import monocle.function.all.wrapped
 import shapeless.tag
 import shapeless.tag.@@
 
+import scala.collection.SeqLike
 import scala.collection.generic.CanBuildFrom
 import scala.language.implicitConversions
 
@@ -17,7 +18,7 @@ object implicits {
     val wrapped: Iso[@@[A, T], A] = Iso[@@[A, T], A](identity)(tag.apply[T].apply[A])
   }
 
-  implicit def seqAt[A, S <: Seq[A]](implicit bf: CanBuildFrom[S, A, S]): At[S, Int, A] = (i: Int) =>
+  implicit def seqAt[A, S <: SeqLike[A, S]](implicit bf: CanBuildFrom[S, A, S]): At[S, Int, A] = (i: Int) =>
     Lens[S, A](_(i))(x => _.updated[A, S](i, x))
 
 }
