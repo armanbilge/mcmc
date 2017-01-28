@@ -1,6 +1,5 @@
 package mcmc
 
-import scala.language.implicitConversions
 import monocle.{Iso, Lens}
 import monocle.function.{At, Wrapped}
 import monocle.function.all.wrapped
@@ -8,6 +7,7 @@ import shapeless.tag
 import shapeless.tag.@@
 
 import scala.collection.generic.CanBuildFrom
+import scala.language.implicitConversions
 
 object implicits {
 
