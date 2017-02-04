@@ -15,7 +15,7 @@ object implicits {
   implicit def untaggedLens[A, B, T](lens: Lens[A, B @@ T]): Lens[A, B] = lens ^<-> wrapped
 
   implicit def tagWrapped[A, T]: Wrapped[A @@ T, A] = new Wrapped[A @@ T, A] {
-    val wrapped: Iso[@@[A, T], A] = Iso[@@[A, T], A](identity)(tag.apply[T].apply[A])
+    val wrapped: Iso[A @@ T, A] = Iso[A @@ T, A](identity)(tag.apply[T].apply[A])
   }
 
   implicit def seqAt[A, S <: SeqLike[A, S]](implicit bf: CanBuildFrom[S, A, S]): At[S, Int, A] = (i: Int) =>
