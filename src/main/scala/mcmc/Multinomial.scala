@@ -1,9 +1,9 @@
 package mcmc
 
-import spire.algebra.{Order, Ring}
+import spire.algebra.{Field, Order}
 import spire.random.{Dist, DistFromGen, Uniform}
+import spire.syntax.field._
 import spire.syntax.order._
-import spire.syntax.ring._
 
 trait Multinomial[T, @specialized(Double) R] extends Any {
 
@@ -17,7 +17,7 @@ object Multinomial {
 
   def apply[T, @specialized(Double) R](probabilities: Map[T, R])(implicit m: Multinomial[T, R]): Dist[T] = m(probabilities)
 
-  implicit def any[T, @specialized(Double) R : Ring : Uniform : Order]: Multinomial[T, R] =
+  implicit def any[T, @specialized(Double) R : Field : Uniform : Order]: Multinomial[T, R] =
     (probabilities: Map[T, R]) => {
       val cumSum = {
         val cs = probabilities.toArray
@@ -27,7 +27,7 @@ object Multinomial {
         cs
       }
       new DistFromGen[T]({ g =>
-        val u = g.next[R](Uniform(Ring[R].zero, cumSum.last._2))
+        val u = g.next[R](Uniform(Field[R].zero, cumSum.last._2))
         var i = 0
         while (i < cumSum.length && u > cumSum(i)._2) i += 1
         cumSum(i)._1
