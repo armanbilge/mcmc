@@ -18,7 +18,8 @@ object implicits {
     val wrapped: Iso[A @@ T, A] = Iso[A @@ T, A](identity)(tag.apply[T].apply[A])
   }
 
-  implicit def seqAt[A, S <: SeqLike[A, S]](implicit bf: CanBuildFrom[S, A, S]): At[S, Int, A] = (i: Int) =>
-    Lens[S, A](_(i))(x => _.updated[A, S](i, x))
+  implicit def seqAt[A, S <: SeqLike[A, S]](implicit bf: CanBuildFrom[S, A, S]): At[S, Int, A] = new At[S, Int, A] {
+    override def at(i: Int): Lens[S, A] = Lens[S, A](_(i))(x => _.updated[A, S](i, x))
+  }
 
 }

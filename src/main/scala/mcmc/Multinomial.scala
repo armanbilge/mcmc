@@ -17,8 +17,8 @@ object Multinomial {
 
   def apply[T, @specialized(Double) R](probabilities: Map[T, R])(implicit m: Multinomial[T, R]): Dist[T] = m(probabilities)
 
-  implicit def any[T, @specialized(Double) R : Field : Uniform : Order]: Multinomial[T, R] =
-    (probabilities: Map[T, R]) => {
+  implicit def any[T, /*@specialized(Double)*/ R : Field : Uniform : Order]: Multinomial[T, R] = new Multinomial[T, R] {
+    override def apply(probabilities: Map[T, R]): Dist[T] = {
       val cumSum = {
         val cs = probabilities.toArray
         scala.util.Sorting.quickSort(cs)(Ordering.fromLessThan(Order.by[(T, R), R](_._2).gt))
@@ -31,7 +31,8 @@ object Multinomial {
         var i = 0
         while (i < cumSum.length && u > cumSum(i)._2) i += 1
         cumSum(i)._1
-      }
-    )}
+      })
+    }
+  }
 
 }

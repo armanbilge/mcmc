@@ -15,7 +15,7 @@ object FocusedOperator {
   implicit def coercer[S, T, R, O <: Operator[T, R]](implicit coercer: OperatorCoercer[T, R, O]): OperatorCoercer[S, R, FocusedOperator[S, T, R, O]] =
     op ^|-> coercer
 
-  def op[S, T, @specialized(Double) R, O <: Operator[T, R]]: Lens[FocusedOperator[S, T, R, O], O] =
+  def op[S, T, /*@specialized(Double)*/ R, O <: Operator[T, R]]: Lens[FocusedOperator[S, T, R, O], O] =
     Lens[FocusedOperator[S, T, R, O], O](_.op)(op => fo => new FocusedOperator(op, fo.lens))
 
 }

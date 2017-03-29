@@ -29,13 +29,17 @@ object JointProbability {
   implicit def right[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], T](implicit p_t: NoImplicit[Lens[P, T]], q_t: Lens[Q, T]): Lens[JointProbability[R, P, Q], T] =
     q[R, P, Q] ^|-> q_t
 
-  implicit def atLeft[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], I, T](implicit pAt: At[P, I, T], qAt: NoImplicit[At[Q, I, T]]): At[JointProbability[R, P, Q], I, T] =
-    (i: I) => p[R, P, Q] ^|-> pAt.at(i)
+  implicit def atLeft[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], I, T](implicit pAt: At[P, I, T], qAt: NoImplicit[At[Q, I, T]]): At[JointProbability[R, P, Q], I, T] = new At[JointProbability[R, P, Q], I, T] {
+    override def at(i: I): Lens[JointProbability[R, P, Q], T] = p[R, P, Q] ^|-> pAt.at(i)
+  }
 
-  implicit def atBoth[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], I, T](implicit pAt: At[P, I, T], qAt: At[Q, I, T]): At[JointProbability[R, P, Q], I, T] =
-    (i: I) => Lens[JointProbability[R, P, Q], T](jp => pAt.at(i).get(jp.p))(t => jp => new JointProbability(pAt.at(i).set(t)(jp.p), qAt.at(i).set(t)(jp.q)))
+  implicit def atBoth[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], I, T](implicit pAt: At[P, I, T], qAt: At[Q, I, T]): At[JointProbability[R, P, Q], I, T] = new At[JointProbability[R, P, Q], I, T] {
+    override def at(i: I): Lens[JointProbability[R, P, Q], T] =
+      Lens[JointProbability[R, P, Q], T](jp => pAt.at(i).get(jp.p))(t => jp => new JointProbability(pAt.at(i).set(t)(jp.p), qAt.at(i).set(t)(jp.q)))
+  }
 
-  implicit def atRight[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], I, T](implicit pAt: NoImplicit[At[P, I, T]], qAt: At[Q, I, T]): At[JointProbability[R, P, Q], I, T] =
-    (i: I) => q[R, P, Q] ^|-> qAt.at(i)
+  implicit def atRight[R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R], I, T](implicit pAt: NoImplicit[At[P, I, T]], qAt: At[Q, I, T]): At[JointProbability[R, P, Q], I, T] = new At[JointProbability[R, P, Q], I, T] {
+    override def at(i: I): Lens[JointProbability[R, P, Q], T] = q[R, P, Q] ^|-> qAt.at(i)
+  }
 
 }

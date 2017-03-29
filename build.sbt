@@ -2,6 +2,7 @@ name := "mcmc"
 version := "0.1"
 organization := "org.compevol"
 scalaVersion := "2.12.1"
+crossScalaVersions := Seq("2.11.8", scalaVersion.value)
 libraryDependencies += "com.chuusai" %% "shapeless" % "2.3.2"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "1.4.0-M2"
 libraryDependencies += "org.spire-math" %% "spire" % "0.13.0"
