@@ -1,6 +1,7 @@
 package mcmc
 
 import mcmc.AutoTuningMCMC.OperatorState
+import spire.NoImplicit
 import spire.algebra.{Field, Order, Trig}
 import spire.random.{Generator, Uniform}
 import spire.syntax.field._
@@ -16,28 +17,40 @@ class AutoTuningMCMC[@specialized(Double) R : Field : Trig : Order : Uniform, P 
   def chain(start: P): TraversableOnce[P] = Iterator.iterate((start, operators))(Function.tupled { (p, ops) =>
     val op = rng.next(Multinomial(ops.map(op => op -> op.weight).toMap[OperatorState[P, R, O] forSome {type O <: Operator[P, R]}, R]))
     val pp = op.op(p)
-    val opp = op.operated
     val alpha = Field[R].zero min (pp.evaluate - p.evaluate + op.op.hastingsRatio(p, pp))
-    val oppp = op.coercion.map { x =>
-      val c = Trig[R].log(Field[R].fromInt(opp.count)) + 1
-      val xp = x + 1 / c * (Trig[R].exp(alpha) - opp.target)
-      opp.coerced(xp)
-    }.getOrElse(opp)
-    (if (rng.next[R](distAlpha) < alpha) pp else p, ops - op + oppp)
+    (if (rng.next[R](distAlpha) < alpha) pp else p, ops - op + op.operated(alpha))
   }).map(_._1)
 
 }
 
 object AutoTuningMCMC {
 
-  class OperatorState[P, @specialized(Double) R, O <: Operator[P, R]](val op: O, val weight: R, val target: R = 0.234, val coercer: Option[OperatorCoercer[P, R, O]] = None, val count: Int = 0) {
+  def statify[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](op: O, weight: R, target: R = 0.234): OperatorState[P, R, O]
+    = implicitly[(O, R, R) => OperatorState[P, R, O]].apply(op, weight, target)
 
-    def coercion: Option[R] = coercer.map(_.get(op))
+  trait OperatorState[P, @specialized(Double) R, O <: Operator[P, R]] {
+    def op: O
+    def weight: R
+    def operated(alpha: R): OperatorState[P, R, O]
+  }
 
-    def coerced(x: R): OperatorState[P, R, O] = new OperatorState[P, R, O](coercer.map(_.set(x)(op)).getOrElse(op), weight, target, coercer, count)
+  implicit def nonTunable[P, @specialized(Double) R, O <: Operator[P, R]](implicit noCoercer: NoImplicit[OperatorCoercer[P, R, O]]): (O, R, R) => OperatorState[P, R, O] =
+    (op: O, weight: R, target: R) => new NonTunable[P, R, O](op, weight)
 
-    def operated: OperatorState[P, R, O] = new OperatorState[P, R, O](op, weight, target, coercer, count + 1)
+  private class NonTunable[P, @specialized(Double) R, O <: Operator[P, R]](val op: O, val weight: R) extends OperatorState[P, R, O] {
+    def operated(alpha: R): OperatorState[P, R, O] = this
+  }
 
+  implicit def tunable[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](op: O, weight: R, target: R)(implicit coercer: OperatorCoercer[P, R, O]): (O, R, R) => OperatorState[P, R, O] =
+    (op: O, weight: R, target: R) => new Tunable(op, weight, target, coercer)
+
+  private class Tunable[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](val op: O, val weight: R, val target: R = 0.234, val coercer: OperatorCoercer[P, R, O], val count: Int = 0) extends OperatorState[P, R, O] {
+    def operated(alpha: R): OperatorState[P, R, O] = {
+      val x = coercer.get(op)
+      val c = Trig[R].log(Field[R].fromInt(count)) + 1
+      val xp = x + 1 / c * (Trig[R].exp(alpha) - target)
+      new Tunable[P, R, O](coercer.set(xp)(op), weight, target, coercer, count + 1)
+    }
   }
 
 }

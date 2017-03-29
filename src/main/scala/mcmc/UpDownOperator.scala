@@ -19,7 +19,7 @@ class UpDownOperator[T, @specialized(Double) R : Field : Trig](val scaleFactor: 
 
 object UpDownOperator {
 
-  def coercer[T, R : Field : Trig]: OperatorCoercer[T, R, UpDownOperator[T, R]] =
+  implicit def coercer[T, R : Field : Trig]: OperatorCoercer[T, R, UpDownOperator[T, R]] =
     OperatorCoercer[T, R, UpDownOperator[T, R]](op => Trig[R].log(1 / op.scaleFactor - 1))(x => op => new UpDownOperator[T, R](1 / (Trig[R].exp(x) + 1), op.up, op.down))
 
 }
