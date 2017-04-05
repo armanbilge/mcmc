@@ -6,7 +6,7 @@ import spire.NoImplicit
 import spire.algebra.AdditiveMonoid
 import spire.syntax.additiveMonoid._
 
-class JointProbability[@specialized(Double) R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R]](val p: P, val q: Q) extends Probability[R] {
+class JointProbability[@specialized(Double) R : AdditiveMonoid, P <: Probability[R], Q <: Probability[R]](val p: P, val q: Q) extends Probability[R] with Serializable {
 
   override lazy val evaluate: R = p.evaluate + q.evaluate
 

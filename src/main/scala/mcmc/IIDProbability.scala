@@ -7,7 +7,7 @@ import spire.algebra.AdditiveMonoid
 
 import scala.collection.generic.CanBuildFrom
 
-class IIDProbability[@specialized(Double) R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P]](val ps: C) extends Probability[R] {
+class IIDProbability[@specialized(Double) R : AdditiveMonoid, P <: Probability[R], C <: Traversable[P]](val ps: C) extends Probability[R] with Serializable {
 
   override lazy val evaluate: R = implicitly[AdditiveMonoid[R]].sum(ps.map(_.evaluate))
 
