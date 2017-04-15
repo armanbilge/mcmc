@@ -25,8 +25,8 @@ class AutoTuningMCMC[@specialized(Double) R : Field : Trig : Order : Uniform, P 
 
 object AutoTuningMCMC {
 
-  def statify[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](op: O, weight: R, target: R = 0.234): OperatorState[P, R, O]
-    = implicitly[(O, R, R) => OperatorState[P, R, O]].apply(op, weight, target)
+  def statify[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](op: O, weight: R, target: R = 0.234)(implicit f: (O, R, R) => OperatorState[P, R, O]): OperatorState[P, R, O] =
+    f(op, weight, target)
 
   trait OperatorState[P, @specialized(Double) R, O <: Operator[P, R]] {
     def op: O
