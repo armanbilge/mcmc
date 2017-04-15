@@ -41,7 +41,7 @@ object AutoTuningMCMC {
     def operated(alpha: R): OperatorState[P, R, O] = this
   }
 
-  implicit def tunable[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](op: O, weight: R, target: R)(implicit coercer: OperatorCoercer[P, R, O]): (O, R, R) => OperatorState[P, R, O] =
+  implicit def tunable[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](implicit coercer: OperatorCoercer[P, R, O]): (O, R, R) => OperatorState[P, R, O] =
     (op: O, weight: R, target: R) => new Tunable(op, weight, target, coercer)
 
   private class Tunable[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](val op: O, val weight: R, val target: R = 0.234, val coercer: OperatorCoercer[P, R, O], val count: Int = 0) extends OperatorState[P, R, O] {
