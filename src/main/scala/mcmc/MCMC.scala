@@ -10,7 +10,7 @@ import scala.collection.TraversableOnce
 class MCMC[@specialized(Double) R : Field : Trig : Order : Uniform, P <: Probability[R]](val operators: Map[Operator[P, R], R])(implicit val rng: Generator) {
 
   val distAlpha = Uniform(Field[R].zero, Field[R].one).map(Trig[R].log)
-  val distOp = Multinomial(operators)
+  val distOp = Categorical(operators)
 
   def chain(start: P): TraversableOnce[P] = Iterator.iterate(start) { p =>
     val op = rng.next[Operator[P, R]](distOp)

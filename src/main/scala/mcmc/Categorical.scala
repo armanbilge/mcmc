@@ -5,19 +5,19 @@ import spire.random.{Dist, DistFromGen, Uniform}
 import spire.syntax.field._
 import spire.syntax.order._
 
-trait Multinomial[T, @specialized(Double) R] extends Any {
+trait Categorical[T, @specialized(Double) R] extends Any {
 
   def apply(probabilities: Map[T, R]): Dist[T]
 
 }
 
-object Multinomial {
+object Categorical {
 
-  @inline final def apply[T, @specialized(Double) R](implicit m: Multinomial[T, R]): Multinomial[T, R] = m
+  @inline final def apply[T, @specialized(Double) R](implicit m: Categorical[T, R]): Categorical[T, R] = m
 
-  def apply[T, @specialized(Double) R](probabilities: Map[T, R])(implicit m: Multinomial[T, R]): Dist[T] = m(probabilities)
+  def apply[T, @specialized(Double) R](probabilities: Map[T, R])(implicit m: Categorical[T, R]): Dist[T] = m(probabilities)
 
-  implicit def any[T, /*@specialized(Double)*/ R : Field : Uniform : Order]: Multinomial[T, R] = new Multinomial[T, R] {
+  implicit def any[T, /*@specialized(Double)*/ R : Field : Uniform : Order]: Categorical[T, R] = new Categorical[T, R] {
     override def apply(probabilities: Map[T, R]): Dist[T] = {
       val cumSum = {
         val cs = probabilities.toArray
