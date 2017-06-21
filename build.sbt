@@ -1,8 +1,8 @@
 name := "mcmc"
-version := "0.1"
+version := "0.2"
 organization := "org.compevol"
-scalaVersion := "2.12.1"
-crossScalaVersions := Seq("2.11.8", scalaVersion.value)
+scalaVersion := "2.12.2"
+crossScalaVersions := Seq("2.11.11", scalaVersion.value)
 libraryDependencies += "com.chuusai" %% "shapeless" % "2.3.2"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "1.4.0"
 libraryDependencies += "org.typelevel" %% "spire" % "0.14.1"
