@@ -11,13 +11,14 @@ import scala.language.existentials
 
 object AutoTuningMCMC {
 
-  def chain[@specialized(Double) R : Field : Trig : Order : Uniform, P <: Probability[R]](start: P, operators: Set[OperatorState[P, R, O] forSome {type O <: Operator[P, R]}])(implicit rng: Generator): TraversableOnce[(P, Set[OperatorState[P, R, O] forSome {type O <: Operator[P, R]}])] = {
+  def chain[@specialized(Double) R : Field : Trig : Order : Uniform, P <: Probability[R]](start: P, operators: IndexedSeq[OperatorState[P, R, O] forSome {type O <: Operator[P, R]}])(implicit rng: Generator): TraversableOnce[(P, IndexedSeq[OperatorState[P, R, O] forSome {type O <: Operator[P, R]}])] = {
     val distAlpha = Uniform(Field[R].zero, Field[R].one).map(Trig[R].log)
     Iterator.iterate((start, operators))(Function.tupled { (p, ops) =>
-      val op = rng.next(Categorical(ops.map(op => op -> op.weight).toMap[OperatorState[P, R, O] forSome {type O <: Operator[P, R]}, R]))
+      val i = rng.next(Categorical((ops.indices, ops.view.map(_.weight)).zipped.toMap))
+      val op = ops(i)
       val pp = op.op(p)
       val alpha = Field[R].zero min (pp.evaluate - p.evaluate + op.op.hastingsRatio(p, pp))
-      (if (rng.next[R](distAlpha) < alpha) pp else p, ops - op + op.operated(alpha))
+      (if (rng.next[R](distAlpha) < alpha) pp else p, ops.updated(i, op.operated(alpha)))
     })
   }
 
