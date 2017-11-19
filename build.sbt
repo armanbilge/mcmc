@@ -1,5 +1,5 @@
 name := "mcmc"
-version := "0.4"
+version := "0.5"
 organization := "org.compevol"
 scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", scalaVersion.value)
