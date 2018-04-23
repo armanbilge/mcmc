@@ -2,6 +2,7 @@ package mcmc
 
 import spire.NoImplicit
 import spire.algebra.{Field, Order, Trig}
+import spire.math.NumberTag
 import spire.random.{Generator, Uniform}
 import spire.syntax.field._
 import spire.syntax.order._
@@ -39,15 +40,15 @@ object AutoTuningMCMC {
     override def toString: String = s"NonTunable($op, $weight)"
   }
 
-  implicit def tunable[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](implicit coercer: OperatorCoercer[P, R, O]): (O, R, R) => OperatorState[P, R, O] =
+  implicit def tunable[P, @specialized(Double) R : Field : Trig : NumberTag, O <: Operator[P, R]](implicit coercer: OperatorCoercer[P, R, O]): (O, R, R) => OperatorState[P, R, O] =
     (op: O, weight: R, target: R) => new Tunable(op, weight, target, coercer)
 
-  private class Tunable[P, @specialized(Double) R : Field : Trig, O <: Operator[P, R]](val op: O, val weight: R, val target: R = 0.234, val coercer: OperatorCoercer[P, R, O], val count: Int = 0) extends OperatorState[P, R, O] {
+  private class Tunable[P, @specialized(Double) R : Field : Trig : NumberTag, O <: Operator[P, R]](val op: O, val weight: R, val target: R = 0.234, val coercer: OperatorCoercer[P, R, O], val count: Int = 0) extends OperatorState[P, R, O] {
     def operated(alpha: R): OperatorState[P, R, O] = {
       val x = coercer.get(op)
       val c = Trig[R].log(Field[R].fromInt(count)) + 1
       val xp = x + 1 / c * (Trig[R].exp(alpha) - target)
-      new Tunable[P, R, O](coercer.set(xp)(op), weight, target, coercer, count + 1)
+      new Tunable[P, R, O](if (NumberTag[R].isFinite(xp)) coercer.set(xp)(op) else op, weight, target, coercer, count + 1)
     }
     override def toString: String = s"Tunable($op, $weight, ${coercer.get(op)})"
   }
